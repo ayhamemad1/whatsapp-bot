@@ -1,32 +1,57 @@
+import sys
 import os
-from flask import Flask, request
-import google.generativeai as genai
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
+import google.generativeai as genai
 
+# Load environment variables
 load_dotenv()
+
 app = Flask(__name__)
+
+# Configure Gemini API
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("models/gemini-1.5-pro")
 
-@app.route('/')
+# Initialize the model
+model = genai.GenerativeModel('gemini-1.5-pro')
+
+@app.route("/", methods=["GET"])
 def home():
-    return "WhatsApp Bot is Live!"
+    return jsonify({"message": "WhatsApp Gemini Bot is running!"})
 
-@app.route('/webhook', methods=['POST'])
+@app.route("/webhook", methods=["POST"])
 def webhook():
-    data = request.get_json()
     try:
-        message = data['message']
-        phone = data['from']
-        print(f"📩 Incoming from {phone}: {message}")
+        # Get the incoming message data
+        data = request.get_json()
+        
+        # Extract message and phone number (adjust based on your webhook format)
+        message = data.get("message", "")
+        phone_number = data.get("phone_number", "")
+        
+        if not message:
+            return jsonify({"error": "No message provided"}), 400
+        
+        # Generate response using Gemini
         response = model.generate_content(message)
-        reply = response.text
-        print(f"🤖 Gemini Response: {reply}")
-        return {'reply': reply}, 200
+        ai_response = response.text
+        
+        # Return the response
+        return jsonify({
+            "response": ai_response,
+            "phone_number": phone_number,
+            "status": "success"
+        })
+        
     except Exception as e:
-        print("🔥 Gemini Error:", str(e))
-        return {'error': str(e)}, 500
+        return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
+@app.route("/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "healthy"})
+
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)
