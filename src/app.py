@@ -1,10 +1,30 @@
+#!/usr/bin/env python3
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import subprocess
 
-from flask import Flask, request, jsonify
-from dotenv import load_dotenv
-import google.generativeai as genai
+# Add current directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, '/opt/render/project/src')
+
+# Install packages at runtime if needed
+try:
+    import flask
+except ImportError:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--user', 'flask'])
+    import flask
+
+try:
+    from flask import Flask, request, jsonify
+    from dotenv import load_dotenv
+    import google.generativeai as genai
+except ImportError as e:
+    print(f"Import error: {e}")
+    # Install missing packages
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--user', 'flask', 'python-dotenv', 'google-generativeai'])
+    from flask import Flask, request, jsonify
+    from dotenv import load_dotenv
+    import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
