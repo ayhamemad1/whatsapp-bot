@@ -1,17 +1,9 @@
 services:
   - type: web
     name: whatsapp-bot
-    env: python
+    runtime: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"
+    startCommand: "python3 src/app.py"
     envVars:
-      - key: GOOGLE_API_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: PHONE_NUMBER_ID
-        sync: false
-      - key: WHATSAPP_TOKEN
-        sync: false
-      - key:VERIFY_TOKEN
+      - key: GEMINI_API_KEY
         sync: false
