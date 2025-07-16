@@ -1,74 +1,91 @@
-# WhatsApp Gemini Bot
+# WhatsApp Gemini Bot (Localhost Version)
 
-A lightweight AI-powered chatbot built using **Flask** and **Google Gemini (Generative AI)**. This app is designed to receive messages (e.g., from WhatsApp or Twilio) and respond using a Gemini language model.
+A lightweight AI-powered chatbot built with **Flask** and **Google Gemini API**. It runs locally and can be exposed to the internet using **ngrok** for testing with WhatsApp, Twilio, or any webhook service.
 
 ---
 
 ## Features
 
-- Receives incoming messages through a webhook.
-- Generates intelligent responses using Gemini 1.5 Pro.
-- Flask-based API server.
-- `.env` support for secret keys and environment variables.
-- Deployable on Render with minimal configuration.
+- Runs locally on Flask
+- Connects to Gemini 1.5 via API key
+- Responds to incoming messages via `/webhook` endpoint
+- Can be publicly exposed using `ngrok`
+- Uses `.env` for secure API key management
 
 ---
 
-## How it Works
+## Prerequisites
 
-1. The app receives a POST request containing the user's message.
-2. It extracts the message and phone number.
-3. The Gemini API is used to generate a response.
-4. The response is returned as a JSON object (for integration with WhatsApp or other services).
+- Python 3.8+
+- A Google Gemini API key
+- ngrok (for tunneling to localhost)
 
 ---
 
 ## Local Setup
 
-1. Clone the repository:
+### 1. Clone the repository
 
-   ```bash
-   git clone https://github.com/ayhamemad1/whatsapp-bot.git
-   cd whatsapp-bot
-   ```
+```bash
+git clone https://github.com/ayhamemad1/whatsapp-bot.git
+cd whatsapp-bot
+```
 
-2. Install dependencies:
+### 2. Create a virtual environment (optional but recommended)
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+python -m venv venv
+source venv/bin/activate      # On macOS/Linux
+venv\Scripts\activate         # On Windows
+```
 
-3. Create a `.env` file in the root directory:
+### 3. Install the dependencies
 
-   ```env
-   GEMINI_API_KEY=your_api_key_here
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-4. Run the app:
+### 4. Create a `.env` file
 
-   ```bash
-   python src/app.py
-   ```
+Create a `.env` file in the root folder:
+
+```env
+GEMINI_API_KEY=your_actual_gemini_api_key
+```
+
+### 5. Run the Flask app
+
+```bash
+python src/app.py
+```
+
+### 6. Start ngrok
+
+```bash
+ngrok http 5000
+```
+
+Copy the HTTPS URL shown and set it as the webhook endpoint in your WhatsApp API/Twilio dashboard.
+
+Example:
+```
+https://your-ngrok-subdomain.ngrok.io/webhook
+```
 
 ---
 
-## Deployment (Render)
+## Webhook Endpoint
 
-This project is ready for deployment on [Render](https://render.com).
+Send a POST request to `/webhook` with this JSON format:
 
-- Set **Build Command**:
+```json
+{
+  "message": "Hello",
+  "from": "+123456789"
+}
+```
 
-  ```bash
-  pip install -r requirements.txt
-  ```
-
-- Set **Start Command**:
-
-  ```bash
-  python3 src/app.py
-  ```
-
-- Add `GEMINI_API_KEY` as an environment variable in Render.
+The server will reply with a JSON response containing the AI-generated reply.
 
 ---
 
@@ -79,18 +96,17 @@ whatsapp-bot/
 ├── src/
 │   └── app.py
 ├── requirements.txt
-├── render.yaml
 ├── .env
 └── .gitignore
 ```
 
 ---
 
-## Dependencies
+## Notes
 
-- Flask
-- python-dotenv
-- google-generativeai
+- Make sure `.env` is listed in `.gitignore`
+- Do not commit your API key to GitHub
+- Use ngrok only for development/testing — not production
 
 ---
 
